@@ -31,10 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'vacancy',
-    'student',
-    'company',
-    'resume',
+    'vacancies',
+    'django_filters',
+    'import_export',
     'application',
     'rest_framework',
     'django.contrib.admin',

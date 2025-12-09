@@ -29,6 +29,7 @@ class Vacancy(models.Model):
     published_at = models.DateTimeField('Дата публикации', default=timezone.now)
     closed_at = models.DateTimeField('Дата закрытия', null=True, blank=True)
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='draft')
+    location = models.CharField('Локация', max_length=150, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -51,6 +52,8 @@ class Vacancy(models.Model):
             raise ValidationError({'salary': 'Зарплата должна быть положительным числом'})
         if self.closed_at and self.closed_at < self.published_at:
             raise ValidationError({'closed_at': 'Дата закрытия не может быть раньше даты публикации.'})
+        if self.published_at and self.published_at > timezone.now():
+            raise ValidationError({'published_at': 'Дата публикации не может быть в будущем.'})
 
     def __str__(self):
         return f'{self.title} - {self.company}'
@@ -65,6 +68,9 @@ class Student(models.Model):
     birth_date = models.DateField('Дата рождения')
     course = models.PositiveSmallIntegerField('Курс обучения', default=1)
     specialty = models.CharField('Специальность', max_length=150)
+    group = models.CharField('Группа', max_length=50, blank=True)
+    faculty = models.CharField('Факультет', max_length=150, blank=True)
+    photo = models.ImageField('Фото', upload_to='students/photos/', null=True, blank=True)
 
     history = HistoricalRecords()
 
@@ -72,6 +78,8 @@ class Student(models.Model):
         super().clean()
         if self.course is not None and (self.course < 1 or self.course > 6):
             raise ValidationError({'course': 'Курс должен быть в диапазоне от 1 до 6'})
+        if self.birth_date and self.birth_date > timezone.now().date():
+            raise ValidationError({'birth_date': 'Дата рождения не может быть в будущем.'})
 
     class Meta:
         verbose_name = 'Студент'
@@ -92,6 +100,9 @@ class Company(models.Model):
     email = models.EmailField('Email')
     phone = models.CharField('Телефон', max_length=50, blank=True)
     industry = models.CharField('Отрасль', max_length=100)
+    address = models.CharField('Адрес', max_length=255, blank=True)
+    logo = models.ImageField('Логотип', upload_to='companies/logos/', null=True, blank=True)
+    size = models.CharField('Размер компании', max_length=50, blank=True)
 
     history = HistoricalRecords()
 
@@ -120,6 +131,7 @@ class Resume(models.Model):
     achievements = models.TextField('Достижения', blank=True)
     contacts = models.TextField('Контакты')
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='draft')
+    skills = models.TextField('Навыки', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -171,6 +183,9 @@ class Application(models.Model):
             raise ValidationError({'resume': 'Выбранное резюме не принадлежит этому студенту.'})
         if not self.resume:
             raise ValidationError({'resume': 'Для подачи заявки требуется указать резюме.'})
+        if self.resume and getattr(self.resume, 'status', None) != 'active':
+            raise ValidationError(
+                {'resume': 'Для подачи заявки требуется активное резюме.'})
 
     def __str__(self):
         return f'{self.student} - {self.vacancy}'

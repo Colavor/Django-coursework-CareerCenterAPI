@@ -9,8 +9,8 @@ class VacancySerializers(serializers.ModelSerializer):
         fields = [
             'id', 'company', 'title', 'requirements', 'description',
             'salary', 'employment_type', 'schedule',
-            'published_at', 'closed_at', 'status',
-            'created_at', 'updated_at'
+            'location', 'published_at', 'closed_at',
+            'status', 'created_at', 'updated_at'
         ]
 
         read_only_fields = ['created_at', 'updated_at']
@@ -41,7 +41,8 @@ class StudentSerializers(serializers.ModelSerializer):
         model = Student
         fields = [
             'id', 'first_name', 'last_name', 'email',
-            'phone', 'birth_date', 'course', 'specialty'
+            'phone', 'birth_date', 'course', 'specialty',
+            'group', 'faculty', 'photo'
         ]
 
     def validate_course(self, value):
@@ -55,7 +56,8 @@ class CompanySerializers(serializers.ModelSerializer):
         model = Company
         fields = [
             'id', 'name', 'description', 'website',
-            'email', 'phone', 'industry'
+            'email', 'phone', 'industry', 'address',
+            'logo', 'size'
         ]
 
 
@@ -67,7 +69,7 @@ class ResumeSerializers(serializers.ModelSerializer):
         fields = [
             'id', 'student', 'title', 'experience',
             'education', 'achievements', 'contacts',
-            'status', 'created_at', 'updated_at'
+            'status', 'skills', 'created_at', 'updated_at'
         ]
 
         read_only_fields = ['created_at', 'updated_at']
@@ -77,7 +79,6 @@ class ApplicationSerializers(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(queryset=Student.objects.all())
     vacancy = serializers.PrimaryKeyRelatedField(queryset=Vacancy.objects.all())
     resume = serializers.PrimaryKeyRelatedField(queryset=Resume.objects.all())
-    employer_comment = serializers.CharField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = Application
@@ -99,6 +100,9 @@ class ApplicationSerializers(serializers.ModelSerializer):
 
         if resume.student_id != student.id:
             raise serializers.ValidationError({'resume': 'Резюме принадлежит другому студенту'})
+
+        if resume.status != 'active':
+            raise serializers.ValidationError({'resume': 'Для подачи заявки требуется активное резюме.'})
 
         existing = Application.objects.filter(student=student, vacancy=vacancy)
         if self.instance:
