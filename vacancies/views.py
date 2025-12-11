@@ -39,9 +39,19 @@ class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готов
         count = vacancy.applications.count()
         return Response({'applications_count': count}, status=status.HTTP_200_OK)
 
+    #вакансии опубликованы в текущем году и активный статус или
+    # или зарплата больше 10к и индустрия IT
+    @action(detail=False, methods=['get'])
+    def complex_vacancy(self, request, pk=None):
+        current_year = timezone.now().year
+        query = (
+            Q(published_at__year=current_year, status='active') |
+            Q(salary__gt=100000, company__industry__iexact='IT')
+        )
 
-    #Нужно дописать сложный Q запрос
-
+        vacancies = Vacancy.objects.filter(query).distinct()
+        serializer = self.get_serializer(vacancies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
@@ -74,7 +84,19 @@ class StudentViewSet(viewsets.ModelViewSet):
         return Response(stats, status=status.HTTP_200_OK)
 
 
-    #Здесь должен был быть сложный Q запрос
+    #студенты 3-4 курс и имеют активное резюме
+    #или подавали заявку в текущем месяце
+    @action(detail=False, methods=['get'])
+    def complex_filter(self, request):
+
+        current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        query = (
+                (Q(course__in=[3, 4]) & Q(resumes__status='active')) |
+                Q(applications__submitted_at__gte=current_month_start)
+        )
+        students = Student.objects.filter(query).distinct()
+        serializer = self.get_serializer(students, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ResumeViewSet(viewsets.ModelViewSet):
