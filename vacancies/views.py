@@ -63,7 +63,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
     ordering = ['name']
 
 class StudentViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.all()
+    queryset = Student.objects.all()
     serializer_class = CompanySerializers
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['course', 'specialty', 'faculty']
@@ -125,6 +125,19 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     ordering_fields = ['submitted_at', 'status']
     ordering = ['-submitted_at']
 
+    #возвращает заявки текущего студента, который аунтефицировн
+    @action(detail=False, methods=['get'])
+    def my_applications(self, request):
+        student_id = request.query_params.get('student') #словарь с параметрами из URL, всё что идёт после ?
+        if not student_id:
+            return Response(
+                {'error': 'Необходимо указать параметр student'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        applications = Application.objects.filter(student_id=student_id)
+        serializer = self.get_serializer(applications, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['post'])
     def withdraw(self, request, pk=None):
         application = self.get_object()
@@ -132,6 +145,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         application.save()
         serializer = self.get_serializer(application)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 

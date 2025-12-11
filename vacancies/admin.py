@@ -9,7 +9,7 @@ from .models import Vacancy, Student, Company, Resume, Application
 class VacancyResource(resources.ModelResource):
     class Meta:
         model = Vacancy
-        fields = ('id', 'title', 'company', 'salary', 'status', 'published_at')
+        fields = ('id', 'title', 'company', 'salary', 'status', 'published_at', 'applications_count')
         export_order = ('id', 'title', 'company', 'salary', 'status', 'published_at', 'applications_count')
 
     applications_count = resources.Field()  #количетсво заявок создаем поле, так как его нету в бд
