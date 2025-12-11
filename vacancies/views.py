@@ -15,10 +15,10 @@ from .serializers import (
     ApplicationSerializers,
 )
 
-class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готовый набор действий: CRUD
-    queryset = Vacancy.objects.all()  #«Работай со всеми вакансиями в базе».
-    serializer_class = VacancySerializers #«Когда нужно показать или принять вакансию в виде JSON — используй этот сериализатор».
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter] #Это список систем, которые добавляют к твоему API:
+class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готовый набор действий CRUD
+    queryset = Vacancy.objects.all()  #Работай со всеми вакансиями в базе
+    serializer_class = VacancySerializers #Когда нужно показать или принять вакансию в виде JSON, то мы используем сериализатор
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter] #Это список систем, которые мы добавляем к Api
     filterset_fields = ['company', 'employment_type', 'status', 'status', 'published_at', 'closed_at']
     search_fields = ['title', 'description', 'requirements']
     ordering_fields = ['salary', 'published_at', 'closed_at']
