@@ -26,11 +26,9 @@ class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готов
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Фильтрация по request.user
         user_id = self.request.query_params.get('user', None)
         if user_id:
             queryset = queryset.filter(created_by_id=user_id)
-        # Фильтрация по GET параметрам (created_by)
         created_by = self.request.query_params.get('created_by', None)
         if created_by:
             queryset = queryset.filter(created_by_id=created_by)
@@ -97,14 +95,15 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 
     #студенты 3-4 курс и имеют активное резюме
-    #или подавали заявку в текущем месяце
+    #или подавали заявку в текущем месяце, но не на 1 курсе
     @action(detail=False, methods=['get'])
     def complex_filter(self, request):
 
         current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         query = (
-                (Q(course__in=[3, 4]) & Q(resumes__status='active')) |
-                Q(applications__submitted_at__gte=current_month_start)
+            ((Q(course__in=[3, 4]) & Q(resumes__status='active')) |
+            Q(applications__submitted_at__gte=current_month_start))
+            & ~Q(course=1)
         )
         students = Student.objects.filter(query).distinct()
         serializer = self.get_serializer(students, many=True)
@@ -122,7 +121,6 @@ class ResumeViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Фильтрация по request.user
         if self.request.user.is_authenticated:
             user_filter = self.request.query_params.get('my', None)
             if user_filter:
@@ -148,16 +146,13 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Фильтрация по GET параметрам (student_id из URL)
         student_id = self.request.query_params.get('student_id', None)
         if student_id:
             queryset = queryset.filter(student_id=student_id)
         return queryset
 
-    #возвращает заявки текущего студента по параметру URL
     @action(detail=False, methods=['get'])
     def my_applications(self, request):
-        # Фильтрация по параметрам URL (path параметр)
         student_id = request.query_params.get('student')
         if not student_id:
             return Response(
