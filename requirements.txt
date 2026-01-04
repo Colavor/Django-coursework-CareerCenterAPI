@@ -1,0 +1,7 @@
+Django>=6.0,<7.0
+djangorestframework
+django-filter
+django-import-export
+django-simple-history
+Pillow
+

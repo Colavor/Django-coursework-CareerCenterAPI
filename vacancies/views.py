@@ -19,10 +19,22 @@ class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готов
     queryset = Vacancy.objects.all()  #Работай со всеми вакансиями в базе
     serializer_class = VacancySerializers #Когда нужно показать или принять вакансию в виде JSON, то мы используем сериализатор
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter] #Это список систем, которые мы добавляем к Api
-    filterset_fields = ['company', 'employment_type', 'status', 'status', 'published_at', 'closed_at']
+    filterset_fields = ['company', 'employment_type', 'status', 'published_at', 'closed_at']
     search_fields = ['title', 'description', 'requirements']
     ordering_fields = ['salary', 'published_at', 'closed_at']
     ordering = ['-published_at']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Фильтрация по request.user
+        user_id = self.request.query_params.get('user', None)
+        if user_id:
+            queryset = queryset.filter(created_by_id=user_id)
+        # Фильтрация по GET параметрам (created_by)
+        created_by = self.request.query_params.get('created_by', None)
+        if created_by:
+            queryset = queryset.filter(created_by_id=created_by)
+        return queryset
 
     @action(detail=True, methods=['post'])
     def close(self, request, pk=None):
@@ -64,7 +76,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
-    serializer_class = CompanySerializers
+    serializer_class = StudentSerializers
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['course', 'specialty', 'faculty']
     search_fields = ['first_name', 'last_name', 'email']
@@ -104,14 +116,23 @@ class ResumeViewSet(viewsets.ModelViewSet):
     serializer_class = ResumeSerializers
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['student', 'status']
-    search_fields = ['title', 'experience', 'skills']
+    search_fields = ['title', 'experience', 'skills_text']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-updated_at']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Фильтрация по request.user
+        if self.request.user.is_authenticated:
+            user_filter = self.request.query_params.get('my', None)
+            if user_filter:
+                queryset = queryset.filter(created_by=self.request.user)
+        return queryset
 
     @action(detail=True, methods=['post'])
     def resume_activate(self, request, pk=None):
         resume = self.get_object()
-        resume.status = 'activate'
+        resume.status = 'active'
         resume.save()
         serializer = self.get_serializer(resume)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -124,11 +145,20 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     search_fields = ['cover_letter']
     ordering_fields = ['submitted_at', 'status']
     ordering = ['-submitted_at']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Фильтрация по GET параметрам (student_id из URL)
+        student_id = self.request.query_params.get('student_id', None)
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        return queryset
 
-    #возвращает заявки текущего студента, который аунтефицировн
+    #возвращает заявки текущего студента по параметру URL
     @action(detail=False, methods=['get'])
     def my_applications(self, request):
-        student_id = request.query_params.get('student') #словарь с параметрами из URL, всё что идёт после ?
+        # Фильтрация по параметрам URL (path параметр)
+        student_id = request.query_params.get('student')
         if not student_id:
             return Response(
                 {'error': 'Необходимо указать параметр student'},

@@ -12,4 +12,6 @@ router.register('students', StudentViewSet, basename='student')
 router.register('resumes', ResumeViewSet, basename='resume')
 router.register('applications', ApplicationViewSet, basename='application')
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('students/<int:student_id>/applications/', ApplicationViewSet.as_view({'get': 'list'}), name='student-applications'),
+]

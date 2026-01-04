@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 
 class Vacancy(models.Model):
@@ -30,9 +31,11 @@ class Vacancy(models.Model):
     closed_at = models.DateTimeField('Дата закрытия', null=True, blank=True)
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='draft')
     location = models.CharField('Локация', max_length=150, blank=True)
+    created_by = models.ForeignKey(User, verbose_name='Создал', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_vacancies')
+    updated_by = models.ForeignKey(User, verbose_name='Изменил', on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_vacancies')
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -60,6 +63,19 @@ class Vacancy(models.Model):
 
 
 
+class Skill(models.Model):
+    name = models.CharField('Название навыка', max_length=100, unique=True)
+    description = models.TextField('Описание', blank=True)
+
+    class Meta:
+        verbose_name = 'Навык'
+        verbose_name_plural = 'Навыки'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Student(models.Model):
     first_name = models.CharField('Имя', max_length=30)
     last_name = models.CharField('Фамилия', max_length=30)
@@ -71,6 +87,8 @@ class Student(models.Model):
     group = models.CharField('Группа', max_length=50, blank=True)
     faculty = models.CharField('Факультет', max_length=150, blank=True)
     photo = models.ImageField('Фото', upload_to='students/photos/', null=True, blank=True)
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -103,6 +121,8 @@ class Company(models.Model):
     address = models.CharField('Адрес', max_length=255, blank=True)
     logo = models.ImageField('Логотип', upload_to='companies/logos/', null=True, blank=True)
     size = models.CharField('Размер компании', max_length=50, blank=True)
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -131,10 +151,13 @@ class Resume(models.Model):
     achievements = models.TextField('Достижения', blank=True)
     contacts = models.TextField('Контакты')
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='draft')
-    skills = models.TextField('Навыки', blank=True)
+    skills_text = models.TextField('Навыки (текст)', blank=True)
+    skills = models.ManyToManyField('Skill', verbose_name='Навыки', blank=True)
+    created_by = models.ForeignKey(User, verbose_name='Создал', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_resumes')
+    updated_by = models.ForeignKey(User, verbose_name='Изменил', on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_resumes')
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -165,6 +188,8 @@ class Application(models.Model):
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='sent')
     response_date = models.DateTimeField('Дата ответа', null=True, blank=True)
     employer_comment = models.TextField('Комментарий работодателя')
+    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
