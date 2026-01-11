@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.shortcuts import render, redirect
 
 from .models import Student, Company, Vacancy, Resume, Application
 from .serializers import (
@@ -116,8 +117,8 @@ class ResumeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['student', 'status']
     search_fields = ['title', 'experience', 'skills_text']
-    ordering_fields = ['created_at', 'updated_at']
-    ordering = ['-updated_at']
+    ordering_fields = ['title', 'status']
+    ordering = ['title']
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -171,6 +172,134 @@ class ApplicationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(application)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+def index(request):
+    return render(request, 'vacancies/index.html')
+
+
+def vacancy_list(request):
+    vacancies = Vacancy.objects.all()[:20]
+    return render(request, 'vacancies/vacancy_list.html', {'vacancies': vacancies})
+
+
+def vacancy_add(request):
+    if request.method == 'POST':
+        try:
+            company_id = request.POST.get('company')
+            company = Company.objects.get(id=company_id)
+            Vacancy.objects.create(
+                title=request.POST.get('title'),
+                company=company,
+                description=request.POST.get('description'),
+                requirements=request.POST.get('requirements', ''),
+                salary=int(request.POST.get('salary')),
+                status=request.POST.get('status', 'draft'),
+                employment_type=request.POST.get('employment_type', 'full_time'),
+                schedule=request.POST.get('schedule', ''),
+                location=request.POST.get('location', '')
+            )
+            return redirect('/vacancies/')
+        except Exception as e:
+            companies = Company.objects.all()
+            return render(request, 'vacancies/vacancy_form.html', {
+                'companies': companies,
+                'error': str(e)
+            })
+    companies = Company.objects.all()
+    if not companies.exists():
+        return render(request, 'vacancies/vacancy_form.html', {
+            'companies': companies,
+            'error': 'Нет компаний в базе данных. Сначала добавьте компанию через админку или API.'
+        })
+    return render(request, 'vacancies/vacancy_form.html', {'companies': companies})
+
+
+def vacancy_edit(request, pk):
+    vacancy = Vacancy.objects.get(id=pk)
+    if request.method == 'POST':
+        try:
+            company_id = request.POST.get('company')
+            company = Company.objects.get(id=company_id)
+            vacancy.title = request.POST.get('title')
+            vacancy.company = company
+            vacancy.description = request.POST.get('description')
+            vacancy.requirements = request.POST.get('requirements', '')
+            vacancy.salary = int(request.POST.get('salary'))
+            vacancy.status = request.POST.get('status', 'draft')
+            vacancy.employment_type = request.POST.get('employment_type', 'full_time')
+            vacancy.schedule = request.POST.get('schedule', '')
+            vacancy.location = request.POST.get('location', '')
+            vacancy.save()
+            return redirect('/vacancies/')
+        except Exception as e:
+            companies = Company.objects.all()
+            return render(request, 'vacancies/vacancy_form.html', {
+                'vacancy': vacancy,
+                'companies': companies,
+                'error': str(e)
+            })
+    companies = Company.objects.all()
+    return render(request, 'vacancies/vacancy_form.html', {'vacancy': vacancy, 'companies': companies})
+
+
+def company_list(request):
+    companies = Company.objects.all()[:20]
+    return render(request, 'vacancies/company_list.html', {'companies': companies})
+
+
+def company_add(request):
+    if request.method == 'POST':
+        try:
+            company = Company.objects.create(
+                name=request.POST.get('name'),
+                email=request.POST.get('email'),
+                industry=request.POST.get('industry'),
+                description=request.POST.get('description', ''),
+                phone=request.POST.get('phone', ''),
+                address=request.POST.get('address', ''),
+                website=request.POST.get('website', ''),
+                size=request.POST.get('size', '')
+            )
+            if 'logo' in request.FILES:
+                company.logo = request.FILES['logo']
+                company.save()
+            return redirect('/companies/')
+        except Exception as e:
+            return render(request, 'vacancies/company_form.html', {'error': str(e)})
+    return render(request, 'vacancies/company_form.html')
+
+
+def company_edit(request, pk):
+    company = Company.objects.get(id=pk)
+    if request.method == 'POST':
+        try:
+            company.name = request.POST.get('name')
+            company.email = request.POST.get('email')
+            company.industry = request.POST.get('industry')
+            company.description = request.POST.get('description', '')
+            company.phone = request.POST.get('phone', '')
+            company.address = request.POST.get('address', '')
+            company.website = request.POST.get('website', '')
+            company.size = request.POST.get('size', '')
+            if 'logo' in request.FILES:
+                company.logo = request.FILES['logo']
+            company.save()
+            return redirect('/companies/')
+        except Exception as e:
+            return render(request, 'vacancies/company_form.html', {'company': company, 'error': str(e)})
+    return render(request, 'vacancies/company_form.html', {'company': company})
+
+
+def vacancy_delete(request, pk):
+    vacancy = Vacancy.objects.get(id=pk)
+    vacancy.delete()
+    return redirect('/vacancies/')
+
+
+def company_delete(request, pk):
+    company = Company.objects.get(id=pk)
+    company.delete()
+    return redirect('/companies/')
 
 
 

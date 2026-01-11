@@ -1,6 +1,7 @@
 from django.contrib import admin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
 from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Vacancy, Student, Company, Resume, Application, Skill
@@ -35,6 +36,7 @@ class ApplicationInline(admin.TabularInline):
 @admin.register(Vacancy)
 class VacancyAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = VacancyResource
+    formats = [base_formats.XLSX, base_formats.CSV]
     list_display = ['title', 'company', 'status', 'salary', 'published_at', 'get_applications_count']
     list_display_links = ['title', 'company']
     list_filter = ['status', 'employment_type', 'company', 'published_at']
@@ -70,11 +72,12 @@ class VacancyAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 @admin.register(Application)
 class ApplicationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    formats = [base_formats.XLSX, base_formats.CSV]
     list_display = ['student', 'vacancy', 'status', 'submitted_at', 'get_days_since_submit']
     list_display_links = ['student', 'vacancy']
     list_filter = ['status', 'submitted_at']
     search_fields = ['student__first_name', 'student__last_name', 'vacancy__title']
-    readonly_fields = ['submitted_at', 'created_at', 'updated_at']
+    readonly_fields = ['submitted_at']
     date_hierarchy = 'submitted_at'
     raw_id_fields = ['student', 'vacancy', 'resume']
     
@@ -86,7 +89,7 @@ class ApplicationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
             'fields': ('cover_letter', 'employer_comment', 'response_date')
         }),
         ('Системная информация', {
-            'fields': ('submitted_at', 'created_at', 'updated_at'),
+            'fields': ('submitted_at',),
             'classes': ('collapse',)
         }),
     )
@@ -104,7 +107,6 @@ class ResumeInline(admin.TabularInline):
     model = Resume
     extra = 0
     raw_id_fields = ['student']
-    readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(Student)
@@ -113,8 +115,6 @@ class StudentAdmin(SimpleHistoryAdmin):
     list_display_links = ['last_name', 'first_name']
     list_filter = ['course', 'faculty']
     search_fields = ['first_name', 'last_name', 'email']
-    readonly_fields = ['created_at', 'updated_at']
-    date_hierarchy = 'created_at'
     
     fieldsets = (
         ('Личные данные', {
@@ -122,10 +122,6 @@ class StudentAdmin(SimpleHistoryAdmin):
         }),
         ('Учебная информация', {
             'fields': ('course', 'specialty', 'group', 'faculty')
-        }),
-        ('Системная информация', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
         }),
     )
     
@@ -140,7 +136,6 @@ class VacancyInline(admin.TabularInline):
     model = Vacancy
     extra = 0
     raw_id_fields = ['company']
-    readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(Company)
@@ -149,8 +144,6 @@ class CompanyAdmin(SimpleHistoryAdmin):
     list_display_links = ['name', 'industry']
     list_filter = ['industry', 'size']
     search_fields = ['name', 'email', 'industry']
-    readonly_fields = ['created_at', 'updated_at']
-    date_hierarchy = 'created_at'
     
     fieldsets = (
         ('Основная информация', {
@@ -158,10 +151,6 @@ class CompanyAdmin(SimpleHistoryAdmin):
         }),
         ('Контакты', {
             'fields': ('email', 'phone', 'website', 'address')
-        }),
-        ('Системная информация', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
         }),
     )
     
@@ -174,12 +163,10 @@ class CompanyAdmin(SimpleHistoryAdmin):
 
 @admin.register(Resume)
 class ResumeAdmin(SimpleHistoryAdmin):
-    list_display = ['student', 'title', 'status', 'created_at', 'get_skills_count']
+    list_display = ['student', 'title', 'status', 'get_skills_count']
     list_display_links = ['student', 'title']
-    list_filter = ['status', 'created_at']
+    list_filter = ['status']
     search_fields = ['student__first_name', 'student__last_name', 'title']
-    readonly_fields = ['created_at', 'updated_at']
-    date_hierarchy = 'created_at'
     raw_id_fields = ['student', 'created_by', 'updated_by']
     filter_horizontal = ['skills']
     
@@ -194,7 +181,7 @@ class ResumeAdmin(SimpleHistoryAdmin):
             'fields': ('skills',)
         }),
         ('Системная информация', {
-            'fields': ('created_by', 'updated_by', 'created_at', 'updated_at'),
+            'fields': ('created_by', 'updated_by'),
             'classes': ('collapse',)
         }),
     )

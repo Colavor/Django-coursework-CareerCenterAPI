@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Компании</title>
+  </head>
+  <body>
+    <h1>Компании</h1>
+    <p><a href="/">Назад</a></p>
+
+    <ul>
+      {% for company in companies %}
+      <li>
+        <strong>{{ company.name }}</strong><br />
+        Отрасль: {{ company.industry }} | Email: {{ company.email }}<br />
+        <a href="/companies/{{ company.id }}/edit/">Редактировать</a> |
+        <a href="/companies/{{ company.id }}/delete/">Удалить</a> |
+        <a href="/api/companies/{{ company.id }}/"
+          >API: /api/companies/{{ company.id }}/</a
+        >
+      </li>
+      {% empty %}
+      <li>Нет компаний</li>
+      {% endfor %}
+    </ul>
+
+    <p><a href="/companies/add/">Добавить компанию</a></p>
+  </body>
+</html>

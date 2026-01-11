@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Вакансии</title>
+  </head>
+  <body>
+    <h1>Вакансии</h1>
+    <p><a href="/">Назад</a></p>
+
+    <ul>
+      {% for vacancy in vacancies %}
+      <li>
+        <strong>{{ vacancy.title }}</strong> - {{ vacancy.company.name }}<br />
+        Зарплата: {{ vacancy.salary }} | Статус: {{ vacancy.get_status_display
+        }}<br />
+        <a href="/vacancies/{{ vacancy.id }}/edit/">Редактировать</a> |
+        <a href="/vacancies/{{ vacancy.id }}/delete/">Удалить</a> |
+        <a href="/api/vacancies/{{ vacancy.id }}/"
+          >API: /api/vacancies/{{ vacancy.id }}/</a
+        >
+      </li>
+      {% empty %}
+      <li>Нет вакансий</li>
+      {% endfor %}
+    </ul>
+
+    <p><a href="/vacancies/add/">Добавить вакансию</a></p>
+  </body>
+</html>

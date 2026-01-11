@@ -4,4 +4,6 @@ django-filter
 django-import-export
 django-simple-history
 Pillow
+openpyxl
+flake8
 

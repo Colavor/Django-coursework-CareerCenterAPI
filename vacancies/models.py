@@ -87,8 +87,6 @@ class Student(models.Model):
     group = models.CharField('Группа', max_length=50, blank=True)
     faculty = models.CharField('Факультет', max_length=150, blank=True)
     photo = models.ImageField('Фото', upload_to='students/photos/', null=True, blank=True)
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -121,8 +119,6 @@ class Company(models.Model):
     address = models.CharField('Адрес', max_length=255, blank=True)
     logo = models.ImageField('Логотип', upload_to='companies/logos/', null=True, blank=True)
     size = models.CharField('Размер компании', max_length=50, blank=True)
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 
@@ -156,15 +152,11 @@ class Resume(models.Model):
     created_by = models.ForeignKey(User, verbose_name='Создал', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_resumes')
     updated_by = models.ForeignKey(User, verbose_name='Изменил', on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_resumes')
 
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
-
     history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Резюме'
         verbose_name_plural = 'Резюме'
-        ordering = ['-updated_at']
 
     def __str__(self):
         return f"{self.student} — {self.title}"
@@ -188,8 +180,6 @@ class Application(models.Model):
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='sent')
     response_date = models.DateTimeField('Дата ответа', null=True, blank=True)
     employer_comment = models.TextField('Комментарий работодателя')
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
     history = HistoricalRecords()
 

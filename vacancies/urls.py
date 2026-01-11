@@ -6,7 +6,7 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register('vacancies', VacancyViewSet, basename='vacancy') #имя-ярлык для создания URL в коде
+router.register('vacancies', VacancyViewSet, basename='vacancy')
 router.register('companies', CompanyViewSet, basename='company')
 router.register('students', StudentViewSet, basename='student')
 router.register('resumes', ResumeViewSet, basename='resume')
