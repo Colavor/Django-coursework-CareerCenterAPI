@@ -19,7 +19,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Резюме: {resume_count}'))
         self.stdout.write(self.style.SUCCESS(f'Заявок: {application_count}'))
         self.stdout.write(self.style.SUCCESS(f'Навыков: {skill_count}'))
-        
+
         total = vacancy_count + student_count + company_count + resume_count + application_count + skill_count
         self.stdout.write(self.style.WARNING(f'Всего объектов: {total}'))
-

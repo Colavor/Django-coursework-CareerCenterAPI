@@ -1,5 +1,5 @@
 from django.utils import timezone
-from django.db.models import Q, Count
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -16,15 +16,16 @@ from .serializers import (
     ApplicationSerializers,
 )
 
-class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готовый набор действий CRUD
-    queryset = Vacancy.objects.all()  #Работай со всеми вакансиями в базе
-    serializer_class = VacancySerializers #Когда нужно показать или принять вакансию в виде JSON, то мы используем сериализатор
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter] #Это список систем, которые мы добавляем к Api
+
+class VacancyViewSet(viewsets.ModelViewSet):
+    queryset = Vacancy.objects.all()
+    serializer_class = VacancySerializers
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['company', 'employment_type', 'status', 'published_at', 'closed_at']
     search_fields = ['title', 'description', 'requirements']
     ordering_fields = ['salary', 'published_at', 'closed_at']
     ordering = ['-published_at']
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         user_id = self.request.query_params.get('user', None)
@@ -64,6 +65,7 @@ class VacancyViewSet(viewsets.ModelViewSet): #ModelViewSet — это готов
         serializer = self.get_serializer(vacancies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializers
@@ -72,6 +74,7 @@ class CompanyViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'industry']
     ordering = ['name']
+
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
@@ -94,16 +97,18 @@ class StudentViewSet(viewsets.ModelViewSet):
         }
         return Response(stats, status=status.HTTP_200_OK)
 
-
-    #студенты 3-4 курс и имеют активное резюме
-    #или подавали заявку в текущем месяце, но не на 1 курсе
+    # студенты 3-4 курс и имеют активное резюме
+    # или подавали заявку в текущем месяце, но не на 1 курсе
     @action(detail=False, methods=['get'])
     def complex_filter(self, request):
-
-        current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_month_start = timezone.now().replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0
+        )
         query = (
-            ((Q(course__in=[3, 4]) & Q(resumes__status='active')) |
-            Q(applications__submitted_at__gte=current_month_start))
+            (
+                (Q(course__in=[3, 4]) & Q(resumes__status='active'))
+                | Q(applications__submitted_at__gte=current_month_start)
+            )
             & ~Q(course=1)
         )
         students = Student.objects.filter(query).distinct()
@@ -119,7 +124,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'experience', 'skills_text']
     ordering_fields = ['title', 'status']
     ordering = ['title']
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.request.user.is_authenticated:
@@ -136,6 +141,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(resume)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializers
@@ -144,7 +150,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     search_fields = ['cover_letter']
     ordering_fields = ['submitted_at', 'status']
     ordering = ['-submitted_at']
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         student_id = self.request.query_params.get('student_id', None)
@@ -300,14 +306,3 @@ def company_delete(request, pk):
     company = Company.objects.get(id=pk)
     company.delete()
     return redirect('/companies/')
-
-
-
-
-
-
-
-
-
-
-

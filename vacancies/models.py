@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 
+
 class Vacancy(models.Model):
     EMPLOYMENT_CHOICES = [
         ('full_time', 'Полная занятость'),
@@ -60,7 +61,6 @@ class Vacancy(models.Model):
 
     def __str__(self):
         return f'{self.title} - {self.company}'
-
 
 
 class Skill(models.Model):
@@ -133,6 +133,7 @@ class Company(models.Model):
             models.Index(fields=['industry']),
         ]
 
+
 class Resume(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Черновик'),
@@ -186,7 +187,7 @@ class Application(models.Model):
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
-        unique_together = ('student', 'vacancy') #один студент может откликнуться только на одну ваканисю
+        unique_together = ('student', 'vacancy')  # один студент может откликнуться только на одну ваканисю
         ordering = ['-submitted_at']
         indexes = [
             models.Index(fields=['status']),

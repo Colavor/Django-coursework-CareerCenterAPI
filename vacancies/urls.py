@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import (
     VacancyViewSet, CompanyViewSet, StudentViewSet,
@@ -13,5 +13,9 @@ router.register('resumes', ResumeViewSet, basename='resume')
 router.register('applications', ApplicationViewSet, basename='application')
 
 urlpatterns = router.urls + [
-    path('students/<int:student_id>/applications/', ApplicationViewSet.as_view({'get': 'list'}), name='student-applications'),
+    path(
+        'students/<int:student_id>/applications/',
+        ApplicationViewSet.as_view({'get': 'list'}),
+        name='student-applications'
+    ),
 ]

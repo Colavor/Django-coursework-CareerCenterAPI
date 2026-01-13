@@ -45,7 +45,7 @@ class VacancyAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     date_hierarchy = 'published_at'
     raw_id_fields = ['company', 'created_by', 'updated_by']
     filter_horizontal = []
-    
+
     fieldsets = (
         ('Основная информация', {
             'fields': ('title', 'company', 'description', 'requirements')
@@ -61,9 +61,9 @@ class VacancyAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     inlines = [ApplicationInline]
-    
+
     @admin.display(description='Количество заявок')
     def get_applications_count(self, obj):
         return obj.applications.count()
@@ -80,7 +80,7 @@ class ApplicationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     readonly_fields = ['submitted_at']
     date_hierarchy = 'submitted_at'
     raw_id_fields = ['student', 'vacancy', 'resume']
-    
+
     fieldsets = (
         ('Основная информация', {
             'fields': ('student', 'vacancy', 'resume', 'status')
@@ -93,7 +93,7 @@ class ApplicationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     @admin.display(description='Дней с подачи')
     def get_days_since_submit(self, obj):
         if obj.submitted_at:
@@ -115,7 +115,7 @@ class StudentAdmin(SimpleHistoryAdmin):
     list_display_links = ['last_name', 'first_name']
     list_filter = ['course', 'faculty']
     search_fields = ['first_name', 'last_name', 'email']
-    
+
     fieldsets = (
         ('Личные данные', {
             'fields': ('first_name', 'last_name', 'email', 'phone', 'birth_date', 'photo')
@@ -124,9 +124,9 @@ class StudentAdmin(SimpleHistoryAdmin):
             'fields': ('course', 'specialty', 'group', 'faculty')
         }),
     )
-    
+
     inlines = [ResumeInline]
-    
+
     @admin.display(description='Резюме')
     def get_resumes_count(self, obj):
         return obj.resumes.count()
@@ -144,7 +144,7 @@ class CompanyAdmin(SimpleHistoryAdmin):
     list_display_links = ['name', 'industry']
     list_filter = ['industry', 'size']
     search_fields = ['name', 'email', 'industry']
-    
+
     fieldsets = (
         ('Основная информация', {
             'fields': ('name', 'description', 'logo', 'industry', 'size')
@@ -153,9 +153,9 @@ class CompanyAdmin(SimpleHistoryAdmin):
             'fields': ('email', 'phone', 'website', 'address')
         }),
     )
-    
+
     inlines = [VacancyInline]
-    
+
     @admin.display(description='Вакансий')
     def get_vacancies_count(self, obj):
         return obj.vacancies.count()
@@ -169,7 +169,7 @@ class ResumeAdmin(SimpleHistoryAdmin):
     search_fields = ['student__first_name', 'student__last_name', 'title']
     raw_id_fields = ['student', 'created_by', 'updated_by']
     filter_horizontal = ['skills']
-    
+
     fieldsets = (
         ('Основная информация', {
             'fields': ('student', 'title', 'status')
@@ -185,7 +185,7 @@ class ResumeAdmin(SimpleHistoryAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+
     @admin.display(description='Навыков')
     def get_skills_count(self, obj):
         return obj.skills.count()
@@ -196,7 +196,7 @@ class SkillAdmin(admin.ModelAdmin):
     list_display = ['name', 'get_description_preview']
     list_display_links = ['name']
     search_fields = ['name', 'description']
-    
+
     @admin.display(description='Описание')
     def get_description_preview(self, obj):
         if obj.description:

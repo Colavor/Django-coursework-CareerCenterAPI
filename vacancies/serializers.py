@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Student, Company, Vacancy, Resume, Application
 
+
 class VacancySerializers(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
 
@@ -104,8 +105,11 @@ class ApplicationSerializers(serializers.ModelSerializer):
 
         existing = Application.objects.filter(student=student, vacancy=vacancy)
         if self.instance:
-            existing = existing.exclude(pk=self.instance.pk) #при редактировании чтобы текущая запись не считала сама себя дубликатом
+            # при редактировании чтобы текущая запись не считала сама себя дубликатом
+            existing = existing.exclude(pk=self.instance.pk)
         if existing.exists():
-            raise serializers.ValidationError('Вы уже подавали заявку на эту вакансию.')
+            raise serializers.ValidationError(
+                'Вы уже подавали заявку на эту вакансию.'
+            )
 
         return data
