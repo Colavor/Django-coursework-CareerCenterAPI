@@ -1,0 +1,22 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Отзывы{% endblock %}
+{% block content %}
+<h2>Отзывы о компаниях</h2>
+<form method="get">
+  Компания:
+  <select name="company" onchange="this.form.submit()">
+    <option value="">Все</option>
+    {% for c in companies %}
+    <option value="{{ c.id }}" {% if company_id == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+{% if is_student %}<p><a href="{% url 'review_add' %}">Написать отзыв</a></p>{% endif %}
+<ul>
+  {% for review in reviews %}
+  <li><strong>{{ review.company_name }}</strong> — {{ review.rating }}/5<br>{{ review.text|linebreaks }}</li>
+  {% empty %}
+  <li>Нет отзывов</li>
+  {% endfor %}
+</ul>
+{% endblock %}

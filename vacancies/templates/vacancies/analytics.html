@@ -1,0 +1,18 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Аналитика{% endblock %}
+{% block content %}
+<h2>Аналитика</h2>
+<ul>
+  <li>Заявок: <strong>{{ applications_total }}</strong></li>
+  <li>Активных вакансий: <strong>{{ active_vacancies }}</strong></li>
+  <li>Студентов: <strong>{{ students_count }}</strong></li>
+</ul>
+<h3>Популярные вакансии</h3>
+<ol>
+  {% for v in popular_vacancies %}
+  <li>{{ v.title }} — {{ v.app_count }} заявок</li>
+  {% empty %}
+  <li>Нет данных</li>
+  {% endfor %}
+</ol>
+{% endblock %}

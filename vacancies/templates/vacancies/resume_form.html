@@ -1,0 +1,21 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Резюме{% endblock %}
+{% block content %}
+<h2>{% if resume %}Редактировать{% else %}Новое{% endif %} резюме</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post">
+  {% csrf_token %}
+  <p>Название: <input type="text" name="title" value="{{ resume.title|default:'Основное резюме' }}"></p>
+  <p>Опыт:<br><textarea name="experience" rows="4" required>{% if resume %}{{ resume.experience }}{% endif %}</textarea></p>
+  <p>Образование:<br><textarea name="education" rows="2">{% if resume %}{{ resume.education }}{% endif %}</textarea></p>
+  <p>Контакты:<br><textarea name="contacts" rows="2" required>{% if resume %}{{ resume.contacts }}{% endif %}</textarea></p>
+  <p>Навыки: <input type="text" name="skills_text" value="{% if resume %}{{ resume.skills_text }}{% endif %}" style="width:100%"></p>
+  <p>Статус:
+    <select name="status">
+      <option value="draft">Черновик</option>
+      <option value="active" {% if resume and resume.status == 'active' %}selected{% endif %}>Активно</option>
+    </select>
+  </p>
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

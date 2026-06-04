@@ -1,0 +1,44 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Заявка #{{ application.id }}{% endblock %}
+{% block content %}
+<h2>Обработка заявки #{{ application.id }}</h2>
+<p><a href="{% url 'application_list' %}">← К списку заявок</a></p>
+
+<h3>Данные заявки</h3>
+<ul>
+  <li><strong>Студент:</strong> {{ application.student }} ({{ application.student.email }})</li>
+  <li><strong>Вакансия:</strong> {{ application.vacancy.title }}</li>
+  <li><strong>Компания:</strong> {{ application.vacancy.company.name }}</li>
+  <li><strong>Резюме:</strong> {{ application.resume.title }}</li>
+  <li><strong>Дата подачи:</strong> {{ application.submitted_at|date:"d.m.Y H:i" }}</li>
+  <li><strong>Текущий статус:</strong> {{ application.get_status_display }}</li>
+</ul>
+
+<h3>Сопроводительное письмо</h3>
+<p>{{ application.cover_letter|linebreaks|default:"—" }}</p>
+
+<h3>Быстрая смена статуса</h3>
+<p>
+  <a href="{% url 'application_quick_status' application.id 'viewed' %}">Просмотрена</a> |
+  <a href="{% url 'application_quick_status' application.id 'invited' %}">Приглашение</a> |
+  <a href="{% url 'application_quick_status' application.id 'accepted' %}">Принята</a> |
+  <a href="{% url 'application_quick_status' application.id 'rejected' %}">Отказ</a> |
+  <a href="{% url 'application_quick_status' application.id 'withdrawn' %}">Отозвана</a>
+</p>
+
+<h3>Обработка</h3>
+<form method="post">
+  {% csrf_token %}
+  <p>Статус:
+    <select name="status">
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </p>
+  <p>Комментарий работодателя:<br>
+    <textarea name="employer_comment" rows="4" style="width:100%">{{ application.employer_comment }}</textarea>
+  </p>
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

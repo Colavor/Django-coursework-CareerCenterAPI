@@ -1,0 +1,20 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Заявка{% endblock %}
+{% block content %}
+<h2>Заявка: {{ vacancy.title }}</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if not resumes %}
+<p class="error">Нужно <a href="{% url 'resume_add' student.id %}">активное резюме</a>.</p>
+{% else %}
+<form method="post">
+  {% csrf_token %}
+  <p>Резюме:
+    <select name="resume" required>
+      {% for r in resumes %}<option value="{{ r.id }}">{{ r.title }}</option>{% endfor %}
+    </select>
+  </p>
+  <p>Сопроводительное письмо:<br><textarea name="cover_letter" rows="5" style="width:100%"></textarea></p>
+  <button type="submit">Подать заявку</button>
+</form>
+{% endif %}
+{% endblock %}

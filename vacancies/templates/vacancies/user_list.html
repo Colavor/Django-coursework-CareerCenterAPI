@@ -1,0 +1,41 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+<h2>Пользователи</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%">
+  <tr>
+    <th>Логин</th>
+    <th>Email</th>
+    <th>Активен</th>
+    <th>Админ</th>
+    <th>Действия</th>
+  </tr>
+  {% for u in users %}
+  <tr>
+    <td>{{ u.username }}{% if u.id == user.id %} (вы){% endif %}</td>
+    <td>{{ u.email }}</td>
+    <td>{% if u.is_active %}Да{% else %}Заблокирован{% endif %}</td>
+    <td>{% if u.is_staff %}Да{% else %}Нет{% endif %}</td>
+    <td>
+      {% if u.id != user.id %}
+        {% if u.is_active %}
+          <a href="{% url 'user_toggle_active' u.id %}">Заблокировать</a>
+        {% else %}
+          <a href="{% url 'user_toggle_active' u.id %}">Разблокировать</a>
+        {% endif %}
+        |
+        {% if u.is_staff %}
+          <a href="{% url 'user_toggle_staff' u.id %}">Снять админа</a>
+        {% else %}
+          <a href="{% url 'user_toggle_staff' u.id %}">Сделать админом</a>
+        {% endif %}
+      {% else %}
+        —
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5">Нет пользователей</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

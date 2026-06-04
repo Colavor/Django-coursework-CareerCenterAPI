@@ -1,0 +1,19 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Студент{% endblock %}
+{% block content %}
+<h2>{% if student %}Редактировать{% else %}Добавить{% endif %} студента</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post">
+  {% csrf_token %}
+  <p>Имя: <input type="text" name="first_name" value="{{ student.first_name|default:'' }}" required></p>
+  <p>Фамилия: <input type="text" name="last_name" value="{{ student.last_name|default:'' }}" required></p>
+  <p>Email: <input type="email" name="email" value="{{ student.email|default:'' }}" required></p>
+  <p>Телефон: <input type="text" name="phone" value="{{ student.phone|default:'' }}"></p>
+  <p>Дата рождения: <input type="date" name="birth_date" value="{% if student %}{{ student.birth_date|date:'Y-m-d' }}{% endif %}" required></p>
+  <p>Курс: <input type="number" name="course" min="1" max="6" value="{{ student.course|default:1 }}"></p>
+  <p>Специальность: <input type="text" name="specialty" value="{{ student.specialty|default:'' }}" required></p>
+  <p>Группа: <input type="text" name="group" value="{{ student.group|default:'' }}"></p>
+  <p>Факультет: <input type="text" name="faculty" value="{{ student.faculty|default:'' }}"></p>
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

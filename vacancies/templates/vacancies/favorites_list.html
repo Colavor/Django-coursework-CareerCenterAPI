@@ -1,0 +1,17 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Shortlist{% endblock %}
+{% block content %}
+<h2>Shortlist — отобранные вакансии</h2>
+<ul>
+  {% for vacancy in vacancies %}
+  <li>
+    ★ <a href="{% url 'vacancy_detail' vacancy.id %}">{{ vacancy.title }}</a>
+    — {{ vacancy.company.name }}
+    | <a href="{% url 'favorite_remove' vacancy.id %}">Удалить</a>
+    | <a href="{% url 'application_add' vacancy.id %}">Подать заявку</a>
+  </li>
+  {% empty %}
+  <li>Список пуст. <a href="{% url 'vacancy_list' %}">Смотреть вакансии</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Новый отзыв{% endblock %}
+{% block content %}
+<h2>Оставить отзыв</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if not companies %}
+<p class="error">Сначала подайте заявку на вакансию компании, чтобы оставить отзыв.</p>
+{% else %}
+<form method="post">
+  {% csrf_token %}
+  <p>Компания:
+    <select name="company" required>
+      {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+    </select>
+  </p>
+  <p>Оценка:
+    <select name="rating">
+      <option value="5">5</option>
+      <option value="4">4</option>
+      <option value="3">3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
+  </p>
+  <p>Текст:<br><textarea name="text" rows="5" required style="width:100%"></textarea></p>
+  <button type="submit">Отправить</button>
+</form>
+{% endif %}
+{% endblock %}

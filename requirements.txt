@@ -6,4 +6,5 @@ django-simple-history
 Pillow
 openpyxl
 flake8
+django-silk
 

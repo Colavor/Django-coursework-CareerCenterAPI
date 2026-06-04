@@ -1,0 +1,16 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Студенты{% endblock %}
+{% block content %}
+<h2>Студенты</h2>
+<ul>
+  {% for student in students %}
+  <li>
+    {{ student.last_name }} {{ student.first_name }} — {{ student.email }}
+    | <a href="{% url 'student_edit' student.id %}">Редактировать</a>
+  </li>
+  {% empty %}
+  <li>Нет студентов</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'student_add' %}">Добавить студента</a></p>
+{% endblock %}

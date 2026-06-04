@@ -1,0 +1,35 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}{{ vacancy.title }}{% endblock %}
+{% block content %}
+<h2>{{ vacancy.title }}</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<p>{{ vacancy.company.name }} | {{ vacancy.salary }} руб. | {{ vacancy.get_status_display }}</p>
+<p>Заявок: {{ vacancy.applications_count }} | В shortlist: {{ vacancy.shortlist_count }} | Рейтинг компании: {{ vacancy.company_avg_rating }}</p>
+
+<h3>Описание</h3>
+<p>{{ vacancy.description|linebreaks }}</p>
+<h3>Требования</h3>
+<p>{{ vacancy.requirements|linebreaks|default:"—" }}</p>
+
+{% if is_student and vacancy.status == 'active' %}
+<p>
+  <a href="{% url 'application_add' vacancy.id %}">Подать заявку</a> |
+  {% if is_favorite %}
+    <a href="{% url 'favorites_list' %}">В shortlist ★</a>
+  {% else %}
+    <a href="{% url 'favorite_add' vacancy.id %}">В shortlist</a>
+  {% endif %}
+</p>
+{% elif is_student %}
+<p>Вакансия недоступна для заявки.</p>
+{% endif %}
+
+<h3>Отзывы о компании</h3>
+<ul>
+  {% for review in reviews %}
+  <li>{{ review.rating }}/5 — {{ review.text|truncatechars:100 }}</li>
+  {% empty %}
+  <li>Нет отзывов</li>
+  {% endfor %}
+</ul>
+{% endblock %}

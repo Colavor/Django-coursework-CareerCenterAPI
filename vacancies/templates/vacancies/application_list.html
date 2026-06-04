@@ -1,0 +1,46 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Заявки{% endblock %}
+{% block content %}
+<h2>Обработка заявок</h2>
+
+<form method="get">
+  Статус:
+  <select name="status" onchange="this.form.submit()">
+    <option value="">Все</option>
+    {% for value, label in status_choices %}
+    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; margin-top:15px;">
+  <tr>
+    <th>№</th>
+    <th>Студент</th>
+    <th>Вакансия</th>
+    <th>Компания</th>
+    <th>Дата</th>
+    <th>Статус</th>
+    <th>Действия</th>
+  </tr>
+  {% for app in applications %}
+  <tr>
+    <td>{{ app.id }}</td>
+    <td>{{ app.student }}</td>
+    <td>{{ app.vacancy.title }}</td>
+    <td>{{ app.vacancy.company.name }}</td>
+    <td>{{ app.submitted_at|date:"d.m.Y H:i" }}</td>
+    <td>{{ app.get_status_display }}</td>
+    <td>
+      <a href="{% url 'application_edit' app.id %}">Обработать</a>
+      | <a href="{% url 'application_quick_status' app.id 'viewed' %}">Просмотрена</a>
+      | <a href="{% url 'application_quick_status' app.id 'invited' %}">Пригласить</a>
+      | <a href="{% url 'application_quick_status' app.id 'accepted' %}">Принять</a>
+      | <a href="{% url 'application_quick_status' app.id 'rejected' %}">Отказ</a>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="7">Нет заявок</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

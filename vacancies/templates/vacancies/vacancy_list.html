@@ -1,30 +1,26 @@
-<!DOCTYPE html>
-<html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Вакансии</title>
-  </head>
-  <body>
-    <h1>Вакансии</h1>
-    <p><a href="/">Назад</a></p>
-
-    <ul>
-      {% for vacancy in vacancies %}
-      <li>
-        <strong>{{ vacancy.title }}</strong> - {{ vacancy.company.name }}<br />
-        Зарплата: {{ vacancy.salary }} | Статус: {{ vacancy.get_status_display
-        }}<br />
-        <a href="/vacancies/{{ vacancy.id }}/edit/">Редактировать</a> |
-        <a href="/vacancies/{{ vacancy.id }}/delete/">Удалить</a> |
-        <a href="/api/vacancies/{{ vacancy.id }}/"
-          >API: /api/vacancies/{{ vacancy.id }}/</a
-        >
-      </li>
-      {% empty %}
-      <li>Нет вакансий</li>
-      {% endfor %}
-    </ul>
-
-    <p><a href="/vacancies/add/">Добавить вакансию</a></p>
-  </body>
-</html>
+{% extends 'vacancies/base.html' %}
+{% block title %}Вакансии{% endblock %}
+{% block content %}
+<h2>Вакансии</h2>
+<ul>
+  {% for vacancy in vacancies %}
+  <li>
+    <a href="{% url 'vacancy_detail' vacancy.id %}"><strong>{{ vacancy.title }}</strong></a>
+    — {{ vacancy.company.name }}, {{ vacancy.salary }} руб.
+    {% if vacancy.id in shortlist %} ★{% endif %}
+    | заявок: {{ vacancy.applications_count|default:0 }}
+    | в shortlist: {{ vacancy.shortlist_count|default:0 }}
+    | рейтинг компании: {{ vacancy.company_avg_rating|default:0 }}
+    {% if user.is_staff %}
+      | <a href="{% url 'vacancy_edit' vacancy.id %}">Редактировать</a>
+      | <a href="{% url 'vacancy_delete' vacancy.id %}">Удалить</a>
+    {% endif %}
+  </li>
+  {% empty %}
+  <li>Нет вакансий</li>
+  {% endfor %}
+</ul>
+{% if user.is_staff %}
+<p><a href="{% url 'vacancy_add' %}">Добавить вакансию</a></p>
+{% endif %}
+{% endblock %}

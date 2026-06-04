@@ -1,0 +1,20 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Модерация отзывов{% endblock %}
+{% block content %}
+<h2>Модерация отзывов</h2>
+<ul>
+  {% for review in reviews %}
+  <li>
+    <strong>{{ review.company_name }}</strong> — {{ review.rating }}/5
+    {% if review.is_approved %}(одобрен){% else %}(ожидает){% endif %}<br>
+    {{ review.text|linebreaks }}
+    {% if not review.is_approved %}
+      | <a href="{% url 'review_moderate' review.id 'approve' %}">Одобрить</a>
+    {% endif %}
+    | <a href="{% url 'review_moderate' review.id 'delete' %}">Удалить</a>
+  </li>
+  {% empty %}
+  <li>Нет отзывов</li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<h2>{{ student.last_name }} {{ student.first_name }}</h2>
+<p>{{ student.course }} курс, {{ student.specialty }}, {{ student.email }}</p>
+<p><a href="{% url 'student_edit' student.id %}">Редактировать профиль</a></p>
+
+<h3>Резюме</h3>
+<ul>
+  {% for resume in resumes %}
+  <li>{{ resume.title }} — {{ resume.get_status_display }}
+    <a href="{% url 'resume_edit' resume.id %}">Изменить</a>
+  </li>
+  {% empty %}
+  <li>Нет резюме</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'resume_add' student.id %}">Добавить резюме</a></p>
+
+<h3>Мои заявки</h3>
+<ul>
+  {% for app in applications %}
+  <li>{{ app.vacancy.title }} — {{ app.get_status_display }}</li>
+  {% empty %}
+  <li>Нет заявок</li>
+  {% endfor %}
+</ul>
+
+<h3>Shortlist</h3>
+<ul>
+  {% for fav in favorites %}
+  <li>★ <a href="{% url 'vacancy_detail' fav.id %}">{{ fav.title }}</a> — {{ fav.company.name }}</li>
+  {% empty %}
+  <li>Пусто</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'favorites_list' %}">Открыть shortlist</a></p>
+
+<h3>Мои отзывы</h3>
+<ul>
+  {% for review in reviews %}
+  <li>{{ review.company_name }} — {{ review.rating }}/5
+    {% if not review.is_approved %}(на модерации){% endif %}
+  </li>
+  {% empty %}
+  <li>Нет отзывов</li>
+  {% endfor %}
+</ul>
+<p><a href="{% url 'review_add' %}">Написать отзыв</a></p>
+{% endblock %}

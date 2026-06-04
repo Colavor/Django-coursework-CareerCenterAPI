@@ -1,0 +1,13 @@
+{% extends 'vacancies/base.html' %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<h2>Вход</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post">
+  {% csrf_token %}
+  <p>Логин: <input type="text" name="username" required></p>
+  <p>Пароль: <input type="password" name="password" required></p>
+  <button type="submit">Войти</button>
+</form>
+<p>Нет аккаунта? <a href="{% url 'register' %}">Регистрация студента</a></p>
+{% endblock %}
