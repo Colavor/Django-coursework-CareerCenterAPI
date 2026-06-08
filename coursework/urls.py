@@ -15,6 +15,8 @@ from vacancies.web_views import (
     analytics,
 )
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
 
 urlpatterns = [
     path('', index, name='index'),
@@ -55,6 +57,7 @@ urlpatterns = [
     path('manage/reviews/', review_moderate_list, name='review_moderate_list'),
     path('manage/reviews/<int:review_id>/<str:action>/', review_moderate, name='review_moderate'),
     path('manage/analytics/', analytics, name='analytics'),
+     path('sentry-debug/', trigger_error),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
