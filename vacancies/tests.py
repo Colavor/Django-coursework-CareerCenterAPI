@@ -1,9 +1,3 @@
-"""
-Тесты приложения vacancies: модели, сериализаторы, REST API.
-
-Покрывают валидацию бизнес-логики, права доступа, фильтрацию и shortlist.
-"""
-
 from __future__ import annotations
 
 from datetime import date
@@ -20,7 +14,7 @@ from .serializers import VacancySerializers, ReviewSerializers
 
 
 class VacancyModelTest(TestCase):
-    """Тесты валидации модели Vacancy на уровне clean/full_clean."""
+    """Тесты валидации модели Vacancy"""
 
     def setUp(self) -> None:
         """Создать компанию-работодателя для привязки вакансий."""
@@ -30,8 +24,6 @@ class VacancyModelTest(TestCase):
 
     def test_vacancy_salary_must_be_positive(self) -> None:
         """
-        Зарплата 0 при full_clean() вызывает ValidationError.
-
         Проверяет правило БЛ: зарплата должна быть положительной (models.Vacancy.clean).
         """
         vacancy = Vacancy(
@@ -65,7 +57,6 @@ class ReviewSerializerTest(TestCase):
         """
         Отзыв без заявки в компанию не проходит валидацию сериализатора.
 
-        Ожидается ошибка non_field_errors с текстом про необходимость заявки.
         """
         request = APIRequestFactory().post('/api/reviews/create/')
         request.user = self.user
@@ -120,7 +111,6 @@ class VacancyAPITest(APITestCase):
         """
         Фильтр ?company=<id> оставляет только вакансии выбранной компании.
 
-        Проверяет DjangoFilterBackend и filterset_fields на VacancyViewSet.
         """
         response: Response = self.client.get(f'/api/vacancies/?company={self.it_company.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -151,7 +141,6 @@ class ShortlistAPITest(APITestCase):
         """
         POST add_to_shortlist добавляет id вакансии в shortlist сессии студента.
 
-        Требуется IsStudent (force_authenticate) и пустой shortlist в session.
         """
         self.client.force_authenticate(user=self.user)
         session = self.client.session
@@ -199,8 +188,6 @@ class ApplicationAPITest(APITestCase):
 
     def test_create_application(self) -> None:
         """
-        POST /api/applications/ создаёт заявку со статусом sent.
-
         Студент подаёт заявку на вторую активную вакансию с активным резюме.
         """
         vacancy2 = Vacancy.objects.create(
@@ -219,8 +206,6 @@ class ApplicationAPITest(APITestCase):
     def test_application_on_closed_vacancy_fails(self) -> None:
         """
         Заявка на закрытую вакансию возвращает 400.
-
-        Проверяет ApplicationSerializers.validate (вакансия должна быть active).
         """
         response: Response = self.client.post('/api/applications/', {
             'student': self.student.id,
@@ -233,8 +218,6 @@ class ApplicationAPITest(APITestCase):
     def test_application_retrieve_forbidden_for_other_student(self) -> None:
         """
         GET чужой заявки возвращает 403.
-
-        Проверяет IsAdminOrApplicationOwner на retrieve ApplicationViewSet.
         """
         other_user = User.objects.create_user(
             username='other', password='pass', email='other@test.ru'
@@ -274,8 +257,6 @@ class SerializerTest(TestCase):
     def test_vacancy_serializer_invalid_salary(self) -> None:
         """
         Отрицательная зарплата в данных сериализатора даёт ошибку поля salary.
-
-        Проверяет validate_salary в VacancySerializers.
         """
         serializer = VacancySerializers(data={
             'company': self.company.id,
